@@ -1,0 +1,26 @@
+plan
+
+
+# 1 Lookup 
+	daemonize lookup and make a socket api. 
+	perhaps a HTTP get --> json?
+
+# 2 deploy fresh django-project @apache:
+	http://askbot.org/en/question/2489/how-to-configure-apache-to-run-django-application/
+
+# 3 django-ajax site
+	JS functionality to locate countries:
+		$('svg').element('NO').display = visible;
+
+	traceroute.py
+		traceroutes a given ip / host
+		flushes per hop. Long-lived http connection?
+
+	js Comet functionality, 
+		on each hop: 
+			lookup node, update map.
+
+
+
+
+
