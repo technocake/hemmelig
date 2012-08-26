@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<html lang="en-GB">
+    <head>
+        <title>SVG Illustrator Test</title>
+        <script type="text/javascript" src="/js/jquery-1.8.0.min.js"></script>
+    </head>
+    <body>
+
+        <embed src="/media/WEBMAP-FERDIG.svg" type="image/svg+xml" id="alphasvg" width="100%" height="100%" alt="You need a browser that supports svg to see something cool here" />
+
+    <script>
+         $(window).load(function () {
+        //alert("Document loaded, including graphics and embedded documents (like SVG)");
+        var svgDoc = document.embeds['alphasvg'].getSVGDocument();
+
+
+        var norway = svgDoc.getElementById("NO"); //get the inner element by id
+        norway.setAttributeNS(null, 'style', 'display:block');
+    });
+
+    </script>
+
+    </body>
+</html>

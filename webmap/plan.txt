@@ -5,6 +5,8 @@ plan
 	daemonize lookup and make a socket api. 
 	perhaps a HTTP get --> json?
 
+# Fix web-build to be totally distributed
+
 # 2 deploy fresh django-project @apache:
 	http://askbot.org/en/question/2489/how-to-configure-apache-to-run-django-application/
 
