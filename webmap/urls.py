@@ -9,7 +9,7 @@ from django.conf import settings
 urlpatterns = patterns('',
     # Examples:
      url(r'^$', 'webmap.views.index', name='index'),
-    # url(r'^webmap/', include('webmap.foo.urls')),
+     url(r'^traceroute/(?P<destination>.*)$', 'webmap.views.traceroute', name='traceroute'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
