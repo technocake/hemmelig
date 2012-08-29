@@ -2,6 +2,8 @@ from django.template.response import TemplateResponse
 from django.http import HttpResponse, HttpResponseNotAllowed
 from subprocess import Popen, PIPE
 import shlex, sys, re, socket, simplejson, urllib2, json
+import webmap.settings as settings
+from django_websocket import accept_websocket
 
 
 def index(req):
@@ -15,12 +17,21 @@ def traceroute(req, destination):
     """
     try:
         destination = str(socket.gethostbyname(destination))
-        origin = str(socket.gethostbyname(req.ip))
-    except:
+        origin = str(socket.gethostbyname(_get_client_ip(req)))
+    except Exception as e:
+        if settings.DEBUG:
+            print e
         return HttpResponseNotAllowed('<b>!!</b>')
     #ip = '123.3.164.244'
 
-    return HttpResponse(_traceroute(destination, origin))
+    return HttpResponse(_traceroute(destination, origin), mimetype='application/json')
+
+@accept_websocket
+def ws_traceroute(req, to):
+    req.websocket.send(_traceroute(to))
+
+
+######## Helpers:
 
 
 def _traceroute(destination, origin):
@@ -30,10 +41,10 @@ def _traceroute(destination, origin):
         ('traceroute %s -n -m 60' % destination)
     )
     route = Popen(cmd, stdout=PIPE)
-    start, stop = _hop(_lookup(origin), _hop(_lookup(destination)))
-
-    yield start
-    yield stop
+    start, stop = _hop(_lookup(origin)), _hop(_lookup(destination))
+    yield "["
+    yield "%s," % start
+    yield "%s," % stop
     #
     #   Read asyncronously (line-buffered) from the traceroute
     #   stdout
@@ -52,28 +63,42 @@ def _traceroute(destination, origin):
             #
 
             if re.search(dreamland, hop) != None:
-                yield _hop('dreamland', '')
 
                 if I_HAVE_DREAMT:   # We have already been to dreamland.
-                    yield _hop('destination', '')
+                    yield "%s" % _hop('destination', '')
                     break
+
+                yield "%s," % _hop('dreamland', '')
                 I_HAVE_DREAMT = True
             else:
                 m = re.search(hoppat, hop)
                 if m != None:
-                    yield _hop(str(m.groups()), '')
+                    yield "%s," % _hop(_lookup(str(m.group('ip'))), '')
         else:
             break
+    yield "]"
+    route.kill()
+
+
+def _get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 def _lookup(host):
     """ Looks up a ip/host's country """
-    data = urllib2.urlopen('http://geoip.komsys.org/?ip=%s' % host).read()
-    return simplejson.dumps(data)
+    data = urllib2.urlopen('http://geoip.komsys.org/?ip=%s&type=CTR_ONLY' % host).read().rstrip().lstrip()
+    return data
 
 
-def _hop(ctr, times):
-    return json.dumps('{"ctr" : "%s", "times": "%s"}' % (ctr, times))
+def _hop(ctr, times=''):
+    return json.dumps(
+        { "ctr" :ctr, "times" : times }
+    )
 
 
 if __name__ == '__main__':

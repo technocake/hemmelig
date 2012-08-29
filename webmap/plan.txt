@@ -14,7 +14,7 @@ plan
 		$('svg').element('NO').display = visible;
 
 
-	[ ] traceroute.py
+	[x] traceroute.py
 		traceroutes a given ip / host
 		flushes per hop. Long-lived http connection?
 
