@@ -24,7 +24,7 @@ def traceroute(req, destination):
         return HttpResponseNotAllowed('<b>!!</b>')
     #ip = '123.3.164.244'
 
-    return HttpResponse(_traceroute(destination, origin), mimetype='application/json')
+    return HttpResponse(_traceroute(destination, origin), mimetype='application/jsonstream')
 
 @accept_websocket
 def ws_traceroute(req, to):
@@ -42,9 +42,8 @@ def _traceroute(destination, origin):
     )
     route = Popen(cmd, stdout=PIPE)
     start, stop = _hop(_lookup(origin)), _hop(_lookup(destination))
-    yield "["
-    yield "%s," % start
-    yield "%s," % stop
+    yield "%s\n" % start
+    yield "%s\n" % stop
     #
     #   Read asyncronously (line-buffered) from the traceroute
     #   stdout
@@ -65,18 +64,17 @@ def _traceroute(destination, origin):
             if re.search(dreamland, hop) != None:
 
                 if I_HAVE_DREAMT:   # We have already been to dreamland.
-                    yield "%s" % _hop('destination', '')
+                    yield "%s\n" % _hop('destination', '')
                     break
 
-                yield "%s," % _hop('dreamland', '')
+                yield "%s\n" % _hop('dreamland', '')
                 I_HAVE_DREAMT = True
             else:
                 m = re.search(hoppat, hop)
                 if m != None:
-                    yield "%s," % _hop(_lookup(str(m.group('ip'))), '')
+                    yield "%s\n" % _hop(_lookup(str(m.group('ip'))), '')
         else:
             break
-    yield "]"
     route.kill()
 
 

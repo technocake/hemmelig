@@ -13,6 +13,12 @@ var hide_all = function() {
 
 
  $(window).load(function () {
+
+        // let's invite Firefox to the party.
+        if (window.MozWebSocket) {
+          window.WebSocket = window.MozWebSocket;
+        }
+
         //alert("Document loaded, including graphics and embedded documents (like SVG)");
         svgDoc = document.embeds['alphasvg'].getSVGDocument();
 
@@ -28,18 +34,22 @@ var hide_all = function() {
 
 
 var xmlhttp = new XMLHttpRequest();
+var str = '', line;
+
+function ondata(chunk) {
+    str += chunk
+    while ( (line = str.split('\n', 1))) {
+        line = $.parseJSON(line);
+        show_country(line['ctr']);
+        console.log(chunk)
+    }
+}
+
 xmlhttp.onreadystatechange = function() {
-    if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+    if (xmlhttp.readyState == 3 && xmlhttp.status == 200){
         var nodes = xmlhttp.responseText;
         console.log('received response');
-        console.log(nodes)
-        list = $.parseJSON(nodes)
-
-        for (var i = list.length - 1; i >= 0; i--) {
-            //console.log(nodes[i]);
-            ctr = list[i].ctr;
-            show_country(ctr);
-        };
+        ondata(nodes);
     }
 }
 
