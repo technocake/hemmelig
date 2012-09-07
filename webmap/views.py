@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from django.template.response import TemplateResponse
 from django.http import HttpResponse, HttpResponseNotAllowed
 from subprocess import Popen, PIPE
@@ -40,10 +41,11 @@ def _traceroute(destination, origin):
         ('tracert -h 60 -d %s' % destination) if 'win' in sys.platform else
         ('traceroute %s -n -m 60' % destination)
     )
+    yield "["
     route = Popen(cmd, stdout=PIPE)
     start, stop = _hop(_lookup(origin)), _hop(_lookup(destination))
-    yield "%s\n" % start
-    yield "%s\n" % stop
+    yield "%s,\n" % start
+    yield "%s,\n" % stop
     #
     #   Read asyncronously (line-buffered) from the traceroute
     #   stdout
@@ -56,23 +58,19 @@ def _traceroute(destination, origin):
     while 1:
         hop = route.stdout.readline().rstrip()
         if hop != '':
-            #Do something
-            #   if * * * x 1:  hop = dreamland
-            #   if * * * x 2:  hop = destination
-            #
 
             if re.search(dreamland, hop) != None:
 
                 if I_HAVE_DREAMT:   # We have already been to dreamland.
-                    yield "%s\n" % _hop('destination', '')
+                    yield "%s\n]" % _hop('destination', '')
                     break
 
-                yield "%s\n" % _hop('dreamland', '')
+                yield "%s,\n" % _hop('dreamland', '')
                 I_HAVE_DREAMT = True
             else:
                 m = re.search(hoppat, hop)
                 if m != None:
-                    yield "%s\n" % _hop(_lookup(str(m.group('ip'))), '')
+                    yield "%s,\n" % _hop(_lookup(str(m.group('ip'))), '')
         else:
             break
     route.kill()
