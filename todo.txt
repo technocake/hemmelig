@@ -1,0 +1,12 @@
+todo:
+ - sanitize input from website links: 
+
+  http://www.designacademy.edu.au/eoifjeoif/?soidj1    
+  	--> www.designacademy.edu.au
+
+  - Draw lines between hops.
+  - handle dreamland properly.
+
+
+
+  [ Timing information :) --> stopwatch]
